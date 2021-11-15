@@ -7,12 +7,13 @@ namespace FenzyRide3D.Scripts.Input
     public class VirtualInputManager : Singleton<VirtualInputManager>
     {
         [Header("References:")]
-        [SerializeField]private InputStrategy _inputStrategy;
+        [SerializeField] private InputStrategy _inputStrategy;
 
         public bool MoveLeft;
         public bool MoveRight;
         public bool MoveFront;
         public bool MoveBack;
+        public bool Brake;
 
         void Start()
         {

@@ -6,6 +6,7 @@ using FenzyRide3D.Scripts.Input;
 
 namespace FenzyRide3D.Scripts.CarControlling
 {
+    [RequireComponent(typeof(Rigidbody))]
     public class CarControlling : MonoBehaviour
     {
         [Serializable]
@@ -27,10 +28,12 @@ namespace FenzyRide3D.Scripts.CarControlling
         [Header("References:")]
         [SerializeField] private Wheels<WheelCollider> _wheelColliders;
         [SerializeField] private Wheels<Transform> _wheelTransforms;
+        [SerializeField] private GameObject _centerOfMass;
 
         [Header("Stats:")]
         [SerializeField] private float _maxSteeringAngle;
         [SerializeField] private float _motorTorque;
+        [SerializeField] private float _brakesTorque;
         [SerializeField] private float _linearInterpolationValue;
 
         [Header("PlayMode stats:")]
@@ -52,9 +55,21 @@ namespace FenzyRide3D.Scripts.CarControlling
             GetHorizontalInput();
             Steering();
             Acceleration();
+            Brakes();
 
             UpdateEachWheelTransform(wheelTransforms: _wheelTransforms,
                                     wheelColliders: _wheelColliders);
+
+
+            // * Calculate motor torque 
+            _currentMotorTorqueValue = (_wheelColliders.RearLeftWheel.motorTorque
+                                    + _wheelColliders.RearRightWheel.motorTorque
+                                    + _wheelColliders.FrontLeftWheel.motorTorque
+                                    + _wheelColliders.FrontRightWheel.motorTorque) / 4f;
+
+
+            // * Set center of mass 
+            this.gameObject.GetComponent<Rigidbody>().centerOfMass = _centerOfMass.transform.localPosition;
         }
 
         private void GetVerticalInput()
@@ -132,6 +147,27 @@ namespace FenzyRide3D.Scripts.CarControlling
             _wheelColliders.RearRightWheel.motorTorque = _motorTorque * _currentVerticalInput;
         }
 
+        private void Brakes()
+        {
+            if (VirtualInputManager.Instance.Brake)
+            {
+                _wheelColliders.RearLeftWheel.motorTorque = 0f;
+                _wheelColliders.RearRightWheel.motorTorque = 0f;
+
+                _wheelColliders.RearLeftWheel.brakeTorque = _brakesTorque;
+                _wheelColliders.RearRightWheel.brakeTorque = _brakesTorque;
+                _wheelColliders.FrontLeftWheel.brakeTorque = _brakesTorque;
+                _wheelColliders.FrontRightWheel.brakeTorque = _brakesTorque;
+            }
+            else
+            {
+                _wheelColliders.RearLeftWheel.brakeTorque = 0f;
+                _wheelColliders.RearRightWheel.brakeTorque = 0f;
+                _wheelColliders.FrontLeftWheel.brakeTorque = 0f;
+                _wheelColliders.FrontRightWheel.brakeTorque = 0f;
+            }
+        }
+
         private void UpdateEachWheelTransform(Wheels<Transform> wheelTransforms, Wheels<WheelCollider> wheelColliders)
         {
             UpdateWheelWorldPosition(wheelTransform: wheelTransforms.FrontLeftWheel,
@@ -154,8 +190,8 @@ namespace FenzyRide3D.Scripts.CarControlling
 
             wheelCollider.GetWorldPose(out tempWheelPosition, out tempWheelRotation);
 
-            //wheelTransform.position = tempWheelPosition;
-            wheelTransform.transform.position = new Vector3(wheelTransform.position.x, tempWheelPosition.y, wheelTransform.position.z);
+            wheelTransform.position = tempWheelPosition;
+            //wheelTransform.transform.position = new Vector3(wheelTransform.position.x, tempWheelPosition.y, wheelTransform.position.z);
             wheelTransform.rotation = tempWheelRotation;
         }
     }

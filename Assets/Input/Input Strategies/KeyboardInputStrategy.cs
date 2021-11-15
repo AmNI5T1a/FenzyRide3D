@@ -41,6 +41,15 @@ namespace FenzyRide3D.Scripts.Input
             {
                 VirtualInputManager.Instance.MoveBack = false;
             }
+
+            if (UnityEngine.Input.GetKey(KeyCode.Space))
+            {
+                VirtualInputManager.Instance.Brake = true;
+            }
+            else
+            {
+                VirtualInputManager.Instance.Brake = false;
+            }
         }
     }
 }
