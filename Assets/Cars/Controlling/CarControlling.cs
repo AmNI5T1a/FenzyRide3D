@@ -7,65 +7,76 @@ using FenzyRide3D.Scripts.Input;
 namespace FenzyRide3D.Scripts.CarControlling
 {
     [RequireComponent(typeof(Rigidbody))]
+    [RequireComponent(typeof(GearBox))]
+    [RequireComponent(typeof(IAccelerate))]
+    [RequireComponent(typeof(ISteering))]
+    [RequireComponent(typeof(IWheelsVisualUpdate))]
     public class CarControlling : MonoBehaviour
     {
-        [Serializable]
-        private class Wheels<T>
-        {
-            [SerializeField] public T FrontLeftWheel;
-            [SerializeField] public T FrontRightWheel;
-            [SerializeField] public T RearLeftWheel;
-            [SerializeField] public T RearRightWheel;
-
-            public T[] GetWheels()
-            {
-                T[] wheelsArray = new T[] { FrontLeftWheel, FrontRightWheel, RearLeftWheel, RearRightWheel };
-                return wheelsArray;
-            }
-        }
-
-
         [Header("References:")]
-        [SerializeField] private Wheels<WheelCollider> _wheelColliders;
-        [SerializeField] private Wheels<Transform> _wheelTransforms;
+
         [SerializeField] private GameObject _centerOfMass;
+
+        [Space(10)]
+
+        [SerializeField] private GearBox _gearBox;
+
+        [Space(10)]
+
+        [SerializeField] private IAccelerate _accelerator;
 
         [Header("Stats:")]
         [SerializeField] private float _maxSteeringAngle;
-        [SerializeField] private float _motorTorque;
+        [SerializeField] public float _motorTorque;
         [SerializeField] private float _brakesTorque;
-        [SerializeField] private float _linearInterpolationValue;
 
-        [Header("PlayMode stats:")]
+        [Header("Info:")]
         [SerializeField] private float _currentVerticalInput;
         [SerializeField] private float _currentHorizontalInput;
 
         [SerializeField] private float _currentSteeringAngle;
         [SerializeField] private float _currentMotorTorqueValue;
 
-
-
-        private void Start()
+        private void Awake()
         {
-
+            GearBoxCheck();
         }
+
+        private void GearBoxCheck()
+        {
+            if (_gearBox == null)
+            {
+                _gearBox = this.gameObject.GetComponent<GearBox>();
+
+                if (_gearBox == null)
+                {
+                    Debug.LogError("CarControlling can't work without GearBox");
+
+                    // * Possible solution: initialize gearbox with ctor
+                    // ! ctor is missing
+                }
+            }
+        }
+
         private void FixedUpdate()
         {
             GetVerticalInput();
             GetHorizontalInput();
+            Accelerate();
             Steering();
-            Acceleration();
-            Brakes();
+            UpdateVisuals();
 
-            UpdateEachWheelTransform(wheelTransforms: _wheelTransforms,
-                                    wheelColliders: _wheelColliders);
+            // Brakes();
+
+            // UpdateEachWheelTransform(wheelTransforms: _wheelTransforms,
+            //                         wheelColliders: _wheelColliders);
 
 
             // * Calculate motor torque 
-            _currentMotorTorqueValue = (_wheelColliders.RearLeftWheel.motorTorque
-                                    + _wheelColliders.RearRightWheel.motorTorque
-                                    + _wheelColliders.FrontLeftWheel.motorTorque
-                                    + _wheelColliders.FrontRightWheel.motorTorque) / 4f;
+            // _currentMotorTorqueValue = (_wheelColliders.RearLeftWheel.motorTorque
+            //                         + _wheelColliders.RearRightWheel.motorTorque
+            //                         + _wheelColliders.FrontLeftWheel.motorTorque
+            //                         + _wheelColliders.FrontRightWheel.motorTorque) / 4f;
 
 
             // * Set center of mass 
@@ -76,7 +87,7 @@ namespace FenzyRide3D.Scripts.CarControlling
         {
             if (!VirtualInputManager.Instance.MoveFront && !VirtualInputManager.Instance.MoveBack)
             {
-                _currentVerticalInput = Mathf.Lerp(_currentVerticalInput, 0f, _linearInterpolationValue);
+                _currentVerticalInput = 0f;
                 return;
             }
 
@@ -132,67 +143,40 @@ namespace FenzyRide3D.Scripts.CarControlling
             }
         }
 
+        private void Accelerate()
+        {
+            this.gameObject.GetComponent<IAccelerate>().Accelerate(_motorTorque, _currentVerticalInput);
+        }
+
         private void Steering()
         {
-            _currentSteeringAngle = _maxSteeringAngle * _currentHorizontalInput;
-
-
-            _wheelColliders.FrontLeftWheel.steerAngle = _currentSteeringAngle;
-            _wheelColliders.FrontRightWheel.steerAngle = _currentSteeringAngle;
+            this.gameObject.GetComponent<ISteering>().Steering(maxSteerAngle: _maxSteeringAngle, currentHorizontalInput: _currentHorizontalInput);
         }
 
-        private void Acceleration()
+        // private void Brakes()
+        // {
+        //     if (VirtualInputManager.Instance.Brake)
+        //     {
+        //         _wheelColliders.RearLeftWheel.motorTorque = 0f;
+        //         _wheelColliders.RearRightWheel.motorTorque = 0f;
+
+        //         _wheelColliders.RearLeftWheel.brakeTorque = _brakesTorque;
+        //         _wheelColliders.RearRightWheel.brakeTorque = _brakesTorque;
+        //         _wheelColliders.FrontLeftWheel.brakeTorque = _brakesTorque;
+        //         _wheelColliders.FrontRightWheel.brakeTorque = _brakesTorque;
+        //     }
+        //     else
+        //     {
+        //         _wheelColliders.RearLeftWheel.brakeTorque = 0f;
+        //         _wheelColliders.RearRightWheel.brakeTorque = 0f;
+        //         _wheelColliders.FrontLeftWheel.brakeTorque = 0f;
+        //         _wheelColliders.FrontRightWheel.brakeTorque = 0f;
+        //     }
+        // }
+
+        private void UpdateVisuals()
         {
-            _wheelColliders.RearLeftWheel.motorTorque = _motorTorque * _currentVerticalInput;
-            _wheelColliders.RearRightWheel.motorTorque = _motorTorque * _currentVerticalInput;
-        }
-
-        private void Brakes()
-        {
-            if (VirtualInputManager.Instance.Brake)
-            {
-                _wheelColliders.RearLeftWheel.motorTorque = 0f;
-                _wheelColliders.RearRightWheel.motorTorque = 0f;
-
-                _wheelColliders.RearLeftWheel.brakeTorque = _brakesTorque;
-                _wheelColliders.RearRightWheel.brakeTorque = _brakesTorque;
-                _wheelColliders.FrontLeftWheel.brakeTorque = _brakesTorque;
-                _wheelColliders.FrontRightWheel.brakeTorque = _brakesTorque;
-            }
-            else
-            {
-                _wheelColliders.RearLeftWheel.brakeTorque = 0f;
-                _wheelColliders.RearRightWheel.brakeTorque = 0f;
-                _wheelColliders.FrontLeftWheel.brakeTorque = 0f;
-                _wheelColliders.FrontRightWheel.brakeTorque = 0f;
-            }
-        }
-
-        private void UpdateEachWheelTransform(Wheels<Transform> wheelTransforms, Wheels<WheelCollider> wheelColliders)
-        {
-            UpdateWheelWorldPosition(wheelTransform: wheelTransforms.FrontLeftWheel,
-                                    wheelCollider: wheelColliders.FrontLeftWheel);
-
-            UpdateWheelWorldPosition(wheelTransform: wheelTransforms.FrontRightWheel,
-                                    wheelCollider: wheelColliders.FrontRightWheel);
-
-            UpdateWheelWorldPosition(wheelTransform: wheelTransforms.RearLeftWheel,
-                                    wheelCollider: wheelColliders.RearLeftWheel);
-
-            UpdateWheelWorldPosition(wheelTransform: wheelTransforms.RearRightWheel,
-                                    wheelCollider: wheelColliders.RearRightWheel);
-        }
-
-        private void UpdateWheelWorldPosition(Transform wheelTransform, WheelCollider wheelCollider)
-        {
-            Vector3 tempWheelPosition = wheelTransform.position;
-            Quaternion tempWheelRotation = wheelTransform.rotation;
-
-            wheelCollider.GetWorldPose(out tempWheelPosition, out tempWheelRotation);
-
-            wheelTransform.position = tempWheelPosition;
-            //wheelTransform.transform.position = new Vector3(wheelTransform.position.x, tempWheelPosition.y, wheelTransform.position.z);
-            wheelTransform.rotation = tempWheelRotation;
+            this.gameObject.GetComponent<IWheelsVisualUpdate>().UpdateWheelsPositionRotation();
         }
     }
 }
