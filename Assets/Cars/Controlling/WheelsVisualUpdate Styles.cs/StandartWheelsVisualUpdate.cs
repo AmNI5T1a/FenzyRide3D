@@ -19,14 +19,14 @@ namespace FenzyRide3D.Scripts.CarControlling
             UpdateWheelWorldPosition(wheelTransform: _wheelTransforms[0],
                                     wheelCollider: _wheelColliders[0]);
 
-            UpdateWheelWorldPosition(wheelTransform: _wheelTransforms[0],
-                                    wheelCollider: _wheelColliders[0]);
+            UpdateWheelWorldPosition(wheelTransform: _wheelTransforms[1],
+                                    wheelCollider: _wheelColliders[1]);
 
-            UpdateWheelWorldPosition(wheelTransform: _wheelTransforms[0],
-                                    wheelCollider: _wheelColliders[0]);
+            UpdateWheelWorldPosition(wheelTransform: _wheelTransforms[2],
+                                    wheelCollider: _wheelColliders[2]);
 
-            UpdateWheelWorldPosition(wheelTransform: _wheelTransforms[0],
-                                    wheelCollider: _wheelColliders[0]);
+            UpdateWheelWorldPosition(wheelTransform: _wheelTransforms[3],
+                                    wheelCollider: _wheelColliders[3]);
         }
 
         public override void SetWheels(ref WheelCollider[] wheelColliders, ref Transform[] wheelTransforms)

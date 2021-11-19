@@ -3,7 +3,7 @@ using UnityEngine;
 namespace FenzyRide3D.Scripts.CarControlling
 {
     [RequireComponent(typeof(IWheelsVisualUpdate))]
-    public class FrontWheelDriveCar : AccelerationType, IAccelerate, ISteering
+    public class FrontWheelDriveCar : AccelerationType, IAccelerate, ISteering, IBreaking
     {
         [SerializeField] private WheelCollider[] _wheelColliders;
         [SerializeField] private Transform[] _wheelTransforms;
@@ -26,15 +26,10 @@ namespace FenzyRide3D.Scripts.CarControlling
             _wheelColliders[1].steerAngle = currentSteeringAngle;
         }
 
-        private void UpdateWheelWorldPosition(Transform wheelTransform, WheelCollider wheelCollider)
+        public void Brake(in float brakeTorque)
         {
-            Vector3 tempWheelPosition = wheelTransform.position;
-            Quaternion tempWheelRotation = wheelTransform.rotation;
-
-            wheelCollider.GetWorldPose(out tempWheelPosition, out tempWheelRotation);
-
-            wheelTransform.position = tempWheelPosition;
-            wheelTransform.rotation = tempWheelRotation;
+            foreach (WheelCollider wheel in _wheelColliders)
+                wheel.brakeTorque = brakeTorque;
         }
     }
 }

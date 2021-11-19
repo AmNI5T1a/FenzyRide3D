@@ -349,7 +349,7 @@ GameObject:
   m_Layer: 0
   m_Name: wheel_FrontLeft
   m_TagString: Untagged
-  m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -784,7 +784,7 @@ GameObject:
   m_Layer: 0
   m_Name: wheel_RearRight
   m_TagString: Untagged
-  m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -1069,6 +1069,7 @@ GameObject:
   - component: {fileID: 1221862375}
   - component: {fileID: 1221862376}
   - component: {fileID: 1221862377}
+  - component: {fileID: 1221862378}
   m_Layer: 0
   m_Name: car_template
   m_TagString: Untagged
@@ -1122,15 +1123,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _wheelColliders:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 364996021}
+  - {fileID: 2021414526}
+  - {fileID: 1374909802}
+  - {fileID: 724465285}
   _wheelTransforms:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 230114138}
+  - {fileID: 1033287359}
+  - {fileID: 1464492092}
+  - {fileID: 1646886446}
   _centerOfMass: {fileID: 1869154095}
   _gearBox: {fileID: 0}
   _maxSteeringAngle: 30
@@ -1188,6 +1189,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _wheelColliders: []
   _wheelTransforms: []
+--- !u!114 &1221862378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1221862372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 963f5dfa2ef536e4db2b6ec319d1383d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _wheelColliders: []
+  _wheelTransforms: []
 --- !u!1 &1374909800
 GameObject:
   m_ObjectHideFlags: 0
@@ -1201,7 +1216,7 @@ GameObject:
   m_Layer: 0
   m_Name: wheel_RearLeft
   m_TagString: Untagged
-  m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -1498,7 +1513,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1869154095}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.02, y: 0.21, z: 0.05}
+  m_LocalPosition: {x: 0, y: 0.21, z: 0.05}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1221862374}
@@ -1530,7 +1545,7 @@ GameObject:
   m_Layer: 0
   m_Name: wheel_FrontRight
   m_TagString: Untagged
-  m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1

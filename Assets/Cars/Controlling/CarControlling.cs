@@ -10,6 +10,7 @@ namespace FenzyRide3D.Scripts.CarControlling
     [RequireComponent(typeof(GearBox))]
     [RequireComponent(typeof(IAccelerate))]
     [RequireComponent(typeof(ISteering))]
+    [RequireComponent(typeof(IBreaking))]
     [RequireComponent(typeof(IWheelsVisualUpdate))]
     public class CarControlling : MonoBehaviour
     {
@@ -26,11 +27,11 @@ namespace FenzyRide3D.Scripts.CarControlling
 
         [Space(10)]
 
-        [SerializeField] private GearBox _gearBox;
-
-        [Space(10)]
-
-        [SerializeField] private IAccelerate _accelerator;
+        private GearBox _gearBox;
+        private IAccelerate _accelerator;
+        private ISteering _steeringSystem;
+        private IBreaking _breakingSystem;
+        private IWheelsVisualUpdate _wheelsVisualUpdater;
 
         [Header("Stats:")]
         [SerializeField] private float _maxSteeringAngle;
@@ -46,23 +47,25 @@ namespace FenzyRide3D.Scripts.CarControlling
 
         private void Awake()
         {
-            GearBoxCheck();
+            CheckRequiredComponent<GearBox>(_gearBox);
+            CheckRequiredComponent<IAccelerate>(_accelerator);
+            CheckRequiredComponent<ISteering>(_steeringSystem);
+            CheckRequiredComponent<IBreaking>(_breakingSystem);
+            CheckRequiredComponent<IWheelsVisualUpdate>(_wheelsVisualUpdater);
+
             this.gameObject.GetComponent<AbstractWheelsVIsualUpdate>().SetWheels(ref this._wheelColliders,
                                                                                 ref this._wheelTransforms);
         }
 
-        private void GearBoxCheck()
+        private void CheckRequiredComponent<T>(T component)
         {
-            if (_gearBox == null)
+            if (component == null)
             {
-                _gearBox = this.gameObject.GetComponent<GearBox>();
+                component = this.gameObject.GetComponent<T>();
 
-                if (_gearBox == null)
+                if (component == null)
                 {
-                    Debug.LogError("CarControlling can't work without GearBox");
-
-                    // * Possible solution: initialize gearbox with ctor
-                    // ! ctor is missing
+                    Debug.LogError("CarControlling script can't work without " + typeof(T).ToString());
                 }
             }
         }
@@ -71,21 +74,17 @@ namespace FenzyRide3D.Scripts.CarControlling
         {
             GetVerticalInput();
             GetHorizontalInput();
+            Brake();
             Accelerate();
             Steering();
             UpdateVisuals();
 
-            // Brakes();
-
-            // UpdateEachWheelTransform(wheelTransforms: _wheelTransforms,
-            //                         wheelColliders: _wheelColliders);
-
 
             // * Calculate motor torque 
-            // _currentMotorTorqueValue = (_wheelColliders.RearLeftWheel.motorTorque
-            //                         + _wheelColliders.RearRightWheel.motorTorque
-            //                         + _wheelColliders.FrontLeftWheel.motorTorque
-            //                         + _wheelColliders.FrontRightWheel.motorTorque) / 4f;
+            _currentMotorTorqueValue = (_wheelColliders[0].motorTorque
+                                    + _wheelColliders[1].motorTorque
+                                    + _wheelColliders[2].motorTorque
+                                    + _wheelColliders[3].motorTorque) / 4f;
 
 
             // * Set center of mass 
@@ -162,26 +161,13 @@ namespace FenzyRide3D.Scripts.CarControlling
             this.gameObject.GetComponent<ISteering>().Steering(maxSteerAngle: _maxSteeringAngle, currentHorizontalInput: _currentHorizontalInput);
         }
 
-        // private void Brakes()
-        // {
-        //     if (VirtualInputManager.Instance.Brake)
-        //     {
-        //         _wheelColliders.RearLeftWheel.motorTorque = 0f;
-        //         _wheelColliders.RearRightWheel.motorTorque = 0f;
-
-        //         _wheelColliders.RearLeftWheel.brakeTorque = _brakesTorque;
-        //         _wheelColliders.RearRightWheel.brakeTorque = _brakesTorque;
-        //         _wheelColliders.FrontLeftWheel.brakeTorque = _brakesTorque;
-        //         _wheelColliders.FrontRightWheel.brakeTorque = _brakesTorque;
-        //     }
-        //     else
-        //     {
-        //         _wheelColliders.RearLeftWheel.brakeTorque = 0f;
-        //         _wheelColliders.RearRightWheel.brakeTorque = 0f;
-        //         _wheelColliders.FrontLeftWheel.brakeTorque = 0f;
-        //         _wheelColliders.FrontRightWheel.brakeTorque = 0f;
-        //     }
-        // }
+        private void Brake()
+        {
+            if (VirtualInputManager.Instance.Brake)
+                this.gameObject.GetComponent<IBreaking>().Brake(brakeTorque: _brakesTorque);
+            else
+                this.gameObject.GetComponent<IBreaking>().Brake(brakeTorque: 0f);
+        }
 
         private void UpdateVisuals()
         {
