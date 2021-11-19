@@ -14,6 +14,13 @@ namespace FenzyRide3D.Scripts.CarControlling
     public class CarControlling : MonoBehaviour
     {
         [Header("References:")]
+        [SerializeField] public WheelCollider[] _wheelColliders;
+
+        [Space(10)]
+
+        [SerializeField] public Transform[] _wheelTransforms;
+
+        [Space(10)]
 
         [SerializeField] private GameObject _centerOfMass;
 
@@ -40,6 +47,8 @@ namespace FenzyRide3D.Scripts.CarControlling
         private void Awake()
         {
             GearBoxCheck();
+            this.gameObject.GetComponent<AbstractWheelsVIsualUpdate>().SetWheels(ref this._wheelColliders,
+                                                                                ref this._wheelTransforms);
         }
 
         private void GearBoxCheck()
