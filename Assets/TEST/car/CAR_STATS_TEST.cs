@@ -39,5 +39,6 @@ public class CAR_STATS_TEST : MonoBehaviour
         this.gameObject.transform.GetChild(8).GetComponent<Text>().text = "Vertical Input: " + VerticalInput.ToString();
         this.gameObject.transform.GetChild(9).GetComponent<Text>().text = "Horizontal Input: " + HorizontalInput.ToString();
         this.gameObject.transform.GetChild(10).GetComponent<Text>().text = "Shift TransitionTime: " + ShiftTimeTransaction.ToString();
+        this.gameObject.transform.GetChild(11).GetComponent<Text>().text = "MotorTorque Value: " + MotorTorqueValue.ToString();
     }
 }
