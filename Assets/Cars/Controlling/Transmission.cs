@@ -6,14 +6,17 @@ namespace FenzyRide3D.Scripts.CarControlling
 {
     public class Transmission : MonoBehaviour
     {
-        private WheelCollider _wheel;
-        private GameObject _thisGameObject;
+        [SerializeField] private float weight;
 
-
-        private void Start()
+        [SerializeField] private LinkedList<WheelCollider> _wheels;
+        void Start()
         {
-            _wheel = this.gameObject.AddComponent<WheelCollider>();
-            _wheel.mass = 30f;
+            for (int i = 0; i < 4; i++)
+            {
+                WheelCollider wheel = this.gameObject.transform.GetChild(0).gameObject.AddComponent<WheelCollider>();
+                wheel.mass = weight;
+                _wheels.AddLast(wheel);
+            }
         }
     }
 }
