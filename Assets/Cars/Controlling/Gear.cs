@@ -4,13 +4,13 @@ using UnityEngine;
 namespace FenzyRide3D.Scripts.CarControlling
 {
     [Serializable]
-    class Gear
+    public class Gear
     {
-        [SerializeField] private float MaxRPM;
+        [SerializeField] public float MaxRPM;
         [SerializeField] public float MinRPM;
 
         [Space(10)]
 
-        [SerializeField] private float Ratio;
+        [SerializeField] public float Ratio;
     }
 }

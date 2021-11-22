@@ -5,17 +5,17 @@ namespace FenzyRide3D.Scripts.CarControlling
     [RequireComponent(typeof(IWheelsVisualUpdate))]
     public class FrontWheelDriveCar : AccelerationType, IAccelerate, ISteering, IBreaking
     {
-        [SerializeField] private WheelCollider[] _wheelColliders;
-        [SerializeField] private Transform[] _wheelTransforms;
+        private WheelCollider[] _wheelColliders;
+        private Transform[] _wheelTransforms;
         private void Awake()
         {
             this._wheelColliders = this.gameObject.GetComponent<CarControlling>()._wheelColliders;
             this._wheelTransforms = this.gameObject.GetComponent<CarControlling>()._wheelTransforms;
         }
-        public override void Accelerate(in float motorTorque, in float verticalInput)
+        public override void Accelerate(in float motorTorque, in float verticalInput, in GearBox gearBox)
         {
-            _wheelColliders[0].motorTorque = motorTorque * verticalInput;
-            _wheelColliders[1].motorTorque = motorTorque * verticalInput;
+            _wheelColliders[0].motorTorque = (motorTorque / 4) * verticalInput * gearBox.GetCurrentGear().Ratio;
+            _wheelColliders[1].motorTorque = (motorTorque / 4) * verticalInput * gearBox.GetCurrentGear().Ratio;
         }
 
         public void Steering(in float maxSteerAngle, in float currentHorizontalInput)

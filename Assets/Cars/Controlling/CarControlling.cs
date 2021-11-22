@@ -27,11 +27,11 @@ namespace FenzyRide3D.Scripts.CarControlling
 
         [Space(10)]
 
-        private GearBox _gearBox;
-        private IAccelerate _accelerator;
-        private ISteering _steeringSystem;
-        private IBreaking _breakingSystem;
-        private IWheelsVisualUpdate _wheelsVisualUpdater;
+        [SerializeField] private GearBox _gearBox;
+        [SerializeField] private IAccelerate _accelerator;
+        [SerializeField] private ISteering _steeringSystem;
+        [SerializeField] private IBreaking _breakingSystem;
+        [SerializeField] private IWheelsVisualUpdate _wheelsVisualUpdater;
 
         [Header("Stats:")]
         [SerializeField] private float _maxSteeringAngle;
@@ -44,6 +44,8 @@ namespace FenzyRide3D.Scripts.CarControlling
 
         [SerializeField] private float _currentSteeringAngle;
         [SerializeField] private float _currentMotorTorqueValue;
+
+        [SerializeField] private float[] _RealRPM = new float[4];
 
         private void Awake()
         {
@@ -75,6 +77,7 @@ namespace FenzyRide3D.Scripts.CarControlling
             GetVerticalInput();
             GetHorizontalInput();
             Brake();
+            GearBox();
             Accelerate();
             Steering();
             UpdateVisuals();
@@ -89,6 +92,13 @@ namespace FenzyRide3D.Scripts.CarControlling
 
             // * Set center of mass 
             this.gameObject.GetComponent<Rigidbody>().centerOfMass = _centerOfMass.transform.localPosition;
+
+            CAR_STATS_TEST.Instance.CarBrakeTorque = _brakesTorque;
+            CAR_STATS_TEST.Instance.CarMotorTorque = _motorTorque;
+            CAR_STATS_TEST.Instance.CarMaxSteeringAngle = _currentSteeringAngle;
+            CAR_STATS_TEST.Instance.VerticalInput = _currentVerticalInput;
+            CAR_STATS_TEST.Instance.HorizontalInput = _currentHorizontalInput;
+            CAR_STATS_TEST.Instance.MotorTorqueValue = _currentMotorTorqueValue;
         }
 
         private void GetVerticalInput()
@@ -151,9 +161,14 @@ namespace FenzyRide3D.Scripts.CarControlling
             }
         }
 
+        private void GearBox()
+        {
+            _gearBox.CalculateRealRPM_Score(ref _wheelColliders);
+        }
+
         private void Accelerate()
         {
-            this.gameObject.GetComponent<IAccelerate>().Accelerate(_motorTorque, _currentVerticalInput);
+            this.gameObject.GetComponent<IAccelerate>().Accelerate(_motorTorque, _currentVerticalInput, _gearBox);
         }
 
         private void Steering()
@@ -164,9 +179,12 @@ namespace FenzyRide3D.Scripts.CarControlling
         private void Brake()
         {
             if (VirtualInputManager.Instance.Brake)
+            {
                 this.gameObject.GetComponent<IBreaking>().Brake(brakeTorque: _brakesTorque);
-            else
-                this.gameObject.GetComponent<IBreaking>().Brake(brakeTorque: 0f);
+                Debug.LogWarning("Probably don't work");
+                return;
+            }
+            this.gameObject.GetComponent<IBreaking>().Brake(brakeTorque: 0f);
         }
 
         private void UpdateVisuals()
